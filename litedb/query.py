@@ -1,6 +1,22 @@
+from enum import Enum
 from typing import Any, List
 
-from litedb.models import QueryOperator, QuerySort
+
+class QueryOperator(Enum):
+    AND = 'and'
+    OR = 'or'
+    EQ = '=='
+    NE = '!='
+    LT = '<'
+    LE = '<='
+    GT = '>'
+    GE = '>='
+    ANY = 'in'
+
+
+class QuerySort(Enum):
+    ASC = 'asc'
+    DESC = 'desc'
 
 
 class Query:
@@ -18,7 +34,7 @@ class ComposedCondition(Query):
         self.right = right
 
     def __str__(self):
-        return f'({self.left} {self.operator.name} {self.right})'
+        return f'({str(self.left)} {self.operator.value} {str(self.right)})'
 
 
 class Condition(Query):
@@ -28,7 +44,7 @@ class Condition(Query):
         self.target = None
 
     def __str__(self):
-        return f'({self.field_name} {self.operator.name} {self.target})'
+        return f'({self.field_name} {self.operator.value} {_str_target_(self.target)})'
 
     def equal_to(self, target: Any) -> Query:
         self.operator = QueryOperator.EQ
@@ -81,7 +97,7 @@ class OrderBy(Sort):
         self.sort_type = sort_type
 
     def __str__(self):
-        return f'{self.field_name} {self.sort_type.name}'
+        return f'{self.field_name} {self.sort_type.value}'
 
 
 class SortOrder(Sort):
@@ -90,7 +106,7 @@ class SortOrder(Sort):
         self.sort_order.append(second)
 
     def __str__(self):
-        return ", ".join(self.sort_order)
+        return ", ".join(map(lambda x: str(x), self.sort_order))
 
 
 def asc(field_name: str) -> Sort:
@@ -99,3 +115,13 @@ def asc(field_name: str) -> Sort:
 
 def desc(field_name: str) -> Sort:
     return OrderBy(field_name, QuerySort.DESC)
+
+
+def _str_target_(value) -> str:
+    if isinstance(value, List):
+        str_values = map(_str_target_, value)
+        return f'({",".join(str_values)})'
+    elif isinstance(value, str):
+        return f'"{value}"'
+    else:
+        return str(value)

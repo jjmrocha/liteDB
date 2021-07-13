@@ -1,43 +1,49 @@
-from typing import Any, Dict
-from typing import Iterable, Optional
+from typing import Any, List, Dict, Iterable, Optional
 
-from litedb.query import Query, Sort
-from litedb.schema import Store, DB, Field
+from litedb.model import Field
+from litedb.query import Sort, Query
+from litedb.storage import Table, DB
 
 
 class Bucket:
-    def __init__(self, db: DB, name: str, schema: Dict[str, Field]):
+    def __init__(self, db: DB, name: str, schema: List[Field]):
         self._db_ = db
-        self._store_ = Store(name, schema)
+        self._table_ = Table(name, schema)
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.name}, {self.schema})'
 
     @property
     def name(self) -> str:
-        return self._store_.name
+        return self._table_.name
 
     @property
-    def schema(self) -> Dict[str, Field]:
-        return self._store_.schema
+    def schema(self) -> List[Field]:
+        return self._table_.schema
 
     def store(self, item: Dict[str, Any], update_if_exists: bool = True):
         if update_if_exists:
-            self._store_.upsert(self._db_, [item])
+            self._table_.upsert(self._db_, [item])
         else:
-            self._store_.insert(self._db_, [item])
+            self._table_.insert(self._db_, [item])
 
     def batch(self, items: Iterable[Dict[str, Any]], update_if_exists: bool = True):
         if update_if_exists:
-            self._store_.upsert(self._db_, items)
+            self._table_.upsert(self._db_, items)
         else:
-            self._store_.insert(self._db_, items)
+            self._table_.insert(self._db_, items)
 
     def remove(self, key: Any):
-        self._store_.delete(self._db_, key)
+        self._table_.delete(self._db_, key)
 
     def get(self, key: Any) -> Optional[Dict[str, Any]]:
-        return self._store_.find_by_key(self._db_, key)
+        return self._table_.find_by_key(self._db_, key)
+
+    def all(self) -> Iterable[Dict[str, Any]]:
+        return self._table_.fetch_all(self._db_)
 
     def filter(self, query: Query, sort: Optional[Sort] = None) -> Iterable[Dict[str, Any]]:
-        return self._store_.fetch(query, sort)
+        return self._table_.fetch(self._db_, query, sort)
+
+    def count(self) -> int:
+        return self._table_.count(self._db_)
