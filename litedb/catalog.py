@@ -8,7 +8,6 @@ from litedb.model import Field
 
 class DB:
     def __init__(self, file_name: str):
-        self.file_name = file_name
         self.conn = sqlite3.connect(file_name)
         with self.conn:
             self.conn.execute(
@@ -26,10 +25,10 @@ class DB:
             for bucket, schema in cur.fetchall()
         }
 
-    def schema(self, name: str) -> List[Field]:
+    def _schema_(self, name: str) -> List[Field]:
         cur = self.conn.execute('select schema from litedb_catalog where bucket_name=:name', {'name': name})
         row = cur.fetchone()
-        return decode_schema(row[0])
+        return decode_schema(row[0]) if row is not None else []
 
     def create(self, name: str, schema: List[Field]):
         with self.conn:
@@ -48,7 +47,7 @@ class DB:
                     cur.execute(sql_create_index(name, field.name))
 
     def alter(self, name: str, new_schema: List[Field]):
-        old_schema = self.schema(name)
+        old_schema = self._schema_(name)
         # Check key not changed
         old_key = get_key(old_schema)
         new_key = get_key(new_schema)
