@@ -3,7 +3,7 @@ from os import path
 
 import pytest
 
-from litedb import Repository
+from litedb import Repository, Field
 
 
 @pytest.fixture
@@ -23,3 +23,15 @@ def stateful_repo(tempdir):
 def stateless_repo():
     with Repository() as repo:
         yield repo
+
+
+@pytest.fixture
+def bucket(stateless_repo):
+    yield stateless_repo.create_bucket(
+        name='test_bucket',
+        schema=[
+            Field('id', is_key=True),
+            Field('name'),
+            Field('age', indexed=True),
+        ]
+    )

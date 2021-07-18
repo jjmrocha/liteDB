@@ -121,7 +121,6 @@ def _str_target_(value) -> str:
     if isinstance(value, List):
         str_values = map(_str_target_, value)
         return f'({",".join(str_values)})'
-    elif isinstance(value, str):
+    if isinstance(value, str):
         return f'"{value}"'
-    else:
-        return str(value)
+    return str(value)

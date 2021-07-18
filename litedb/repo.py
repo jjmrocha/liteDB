@@ -17,6 +17,10 @@ class Repository:
     def __str__(self):
         return f'{self.__class__.__name__}({self.repository_name})'
 
+    def __repr__(self):
+        repository_name = f"'{self.repository_name}'" if not self.in_memory else ''
+        return f'{self.__class__.__name__}({repository_name})'
+
     def __enter__(self):
         return self
 

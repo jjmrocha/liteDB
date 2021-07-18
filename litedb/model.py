@@ -10,6 +10,9 @@ class Field:
     def __str__(self):
         return f'{self.__class__.__name__}({self.name}, {self.is_key}, {self.indexed})'
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}('{self.name}', {self.is_key}, {self.indexed})"
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Field):
             return False

@@ -133,9 +133,11 @@ def get_key(schema: List[Field]) -> str:
     return list(filter(lambda x: x.is_key, schema))[0].name
 
 
-def diff(old_schema: Iterable[Field],
-         new_schema: Iterable[Field],
-         mapper: Callable[[Field], Any]) -> Tuple[List[Any], List[Any]]:
+def diff(
+        old_schema: Iterable[Field],
+        new_schema: Iterable[Field],
+        mapper: Callable[[Field], Any]
+) -> Tuple[List[Any], List[Any]]:
     old_values = list(map(mapper, old_schema))
     new_values = list(map(mapper, new_schema))
     new_list = [
