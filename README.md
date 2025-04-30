@@ -10,14 +10,6 @@ LiteDB is a lightweight wrapper for SQLite3, designed to simplify database inter
 - Query data with filtering and sorting.
 - Automatic schema validation and indexing.
 
-## Installation
-
-To use LiteDB, ensure you have Python installed and set up the required dependencies:
-
-```sh
-pip install -r requirements.txt
-```
-
 ## Filter DSL (Domain-Specific Language)
 
 LiteDB provides a powerful and expressive DSL for querying data. The DSL allows you to build complex queries using conditions and logical operators.
@@ -108,6 +100,19 @@ with Repository() as repo:
     print(f"Bucket created: {bucket.name}")
 ```
 
+### Opening a Bucket
+If a bucket already exists in the repository, you can open it by its name:
+
+```python
+with Repository("data.ldb") as repo:
+    bucket = repo.bucket("users")
+    print(f"Opened bucket: {bucket.name}")
+
+    # Example: Fetch all data from the bucket
+    for item in bucket:
+        print(item)
+```
+
 ### Adding Data to a Bucket
 You can add data to a bucket using the save or save_all methods:
 
@@ -126,7 +131,7 @@ You can get the number of the items on the bucket using two methods:
 number_of_items = bucket.count():
 print(number_of_items)
 
-# Or just using the bucket name
+# Or just using the len function
 bucket_size = len(bucket)
 print(bucket_size)
 ```
@@ -138,7 +143,7 @@ You can get access all data store in a bucket by using an ierator:
 for item in bucket.all():
     print(item)
 
-# Or just using the bucket name
+# Or just using the bucket object
 for item in bucket:
     print(item)
 ```
